@@ -7,35 +7,23 @@ class LocalUpdate(object):
         self.loss_func = nn.CrossEntropyLoss()
         self.noisy_data = noisy_data
         self.ldr_train = self.get_noisy_loader()
-
     def get_noisy_loader(self):
         images, labels = self.noisy_data
         dataset_noisy = torch.utils.data.TensorDataset(images, labels)
         return DataLoader(dataset_noisy, batch_size=self.args.local_bs, shuffle=True)
-
-    def train(self, net, w_glob):
+    def train(self, net):
         net.train()
         optimizer = optim.SGD(net.parameters(), lr=self.args.lr, momentum=self.args.momentum)
-        global_params = copy.deepcopy(w_glob)
-
         for _ in range(self.args.local_ep):
             for images, labels in self.ldr_train:
                 images, labels = images.to(self.args.device), labels.to(self.args.device)
                 optimizer.zero_grad()
                 log_probs = net(images)
                 loss = self.loss_func(log_probs, labels)
-
-                # FedProx proximal term
-                prox_reg = 0.0
-                mu = 0.05  # FedProx 正则化系数，可调
-                for name, param in net.state_dict().items(): 
-                    g_param = global_params[name].detach().to(self.args.device)
-                    prox_reg += ((param - g_param) ** 2).sum()
-                loss += (mu / 2) * prox_reg
-
                 loss.backward()
                 optimizer.step()
         return net.state_dict(), loss.item()
+
 
 def test_img(net_g, data_loader, args):
     net_g.eval()
