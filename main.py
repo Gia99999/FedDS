@@ -1,4 +1,4 @@
-num_runs = 3
+num_runs = 1
 all_runs_results = {name: [] for name in ds_variants.keys()}
 
 class LocalUpdate(object):
