@@ -17,7 +17,7 @@ def FedAvg(w, weights=None, use_equal_weights=False):
             w_avg[k] += normalized_weights[i] * w[i][k]
     return w_avg, normalized_weights
   
-  def dawid_skene_standard(predictions, num_classes, max_iter=100, tol=1e-5):
+  def dawid_skene_standard(predictions, num_classes, max_iter=500, tol=1e-5):
     num_items = len(predictions)
     num_annotators = len(predictions[0])
     true_label_probs = np.zeros((num_items, num_classes))
