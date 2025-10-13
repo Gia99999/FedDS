@@ -91,7 +91,10 @@ for run in range(num_runs):
             client_predictions_transposed = list(zip(*client_predictions))
 
             if ds_func is None:
-                w_glob_new, _ = FedAvg(w_locals_round, use_equal_weights=True)
+                client_data_sizes = [len(dict_users_train[i]) for i in selected_clients]
+                w_glob_new, _ = FedAvg([w_locals_variant[i] for i in selected_clients],
+                           weights=client_data_sizes, 
+                           use_equal_weights=False)
             else:
                 if not client_predictions_transposed:
                     w_glob_new = net_glob_variant.state_dict()
